@@ -119,7 +119,7 @@ class DeepLTranslator:
         （課金文字数は変わらない。context は課金対象外）。
         """
         chunks = split_into_chunks(text, max_chars=max_chars)
-        base: dict = {"billed_characters": True}
+        base: dict = {"show_billed_characters": True}
         if formality:
             base["formality"] = formality
 
