@@ -15,6 +15,7 @@ web = ["streamlit>=1.35"]
 
 [project.scripts]
 deepl-translate = "deepl_translator.cli:main"
+deepl-shape = "deepl_translator.cli:shape_main"
 
 [dependency-groups]
 dev = ["pytest>=8"]

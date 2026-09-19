@@ -16,6 +16,15 @@ uv run deepl-translate input.docx -s DE --bilingual -o out_ja.txt
 uv run deepl-translate input.txt --dry-run          # API を呼ばず分割結果だけ確認
 ```
 
+## 貼り付け整形（Shaper 相当）
+PDF からコピーした文章の不要な改行・行末ハイフネーションを除去（大文字始まりの独語複合語 `Max-\nPlanck` はハイフンを残す）。
+```sh
+pbpaste | uv run deepl-shape | pbcopy        # 整形してクリップボードへ
+pbpaste | uv run deepl-shape --url           # DeepL Web 翻訳の URL を出力
+pbpaste | uv run deepl-translate - -s EN     # 整形して API で翻訳
+```
+Web GUI では「貼り付け整形」タブ（コピー / DeepL Web で開く / API 翻訳）。
+
 ## Web GUI
 ```sh
 uv run streamlit run app.py

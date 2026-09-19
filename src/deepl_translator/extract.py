@@ -10,6 +10,8 @@ import re
 from pathlib import Path
 from typing import BinaryIO
 
+from .shaper import _HYPHEN_BREAK, _join_hyphen
+
 SUPPORTED_EXTENSIONS = {".txt", ".docx", ".pdf"}
 
 
@@ -81,7 +83,7 @@ def _reflow_pdf_page(text: str) -> str:
     - それ以外の改行はスペースに置換
     """
     text = text.replace("\r\n", "\n").replace("\r", "\n")
-    text = re.sub(r"(\w)-\n(\w)", r"\1\2", text)
+    text = _HYPHEN_BREAK.sub(_join_hyphen, text)
     lines = [ln.strip() for ln in text.split("\n")]
     paras: list[str] = []
     buf: list[str] = []

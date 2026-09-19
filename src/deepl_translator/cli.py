@@ -7,12 +7,28 @@ from pathlib import Path
 
 from .chunker import DEFAULT_MAX_CHARS, DEFAULT_MAX_REQUEST_BYTES, build_batches, split_into_chunks
 from .extract import extract_text
+from .shaper import deepl_web_url, shape_text
 from .translator import DEFAULT_CONTEXT_CHARS, SOURCE_LANGS, DeepLError, DeepLTranslator
+
+
+def shape_main(argv: list[str] | None = None) -> int:
+    """deepl-shape: 標準入力（またはファイル）の改行・ハイフネーションを整形して出力。"""
+    p = argparse.ArgumentParser(description="PDF からコピーした英文/独文の改行・ハイフネーションを除去します")
+    p.add_argument("input", nargs="?", type=Path, help="入力ファイル（省略時は標準入力）")
+    p.add_argument("--flat", action="store_true", help="段落区切りも除去して 1 行にする")
+    p.add_argument("--url", action="store_true", help="DeepL Web 翻訳の URL を出力する")
+    args = p.parse_args(argv)
+    raw = extract_text(args.input) if args.input and args.input.suffix.lower() != ".txt" else (
+        args.input.read_text(encoding="utf-8") if args.input else sys.stdin.read()
+    )
+    shaped = shape_text(raw, keep_paragraphs=not args.flat)
+    print(deepl_web_url(shaped) if args.url else shaped)
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="txt/docx/pdf を DeepL で日本語に翻訳します")
-    p.add_argument("input", type=Path, help="入力ファイル (.txt / .docx / .pdf)")
+    p.add_argument("input", type=Path, help="入力ファイル (.txt / .docx / .pdf)。'-' で標準入力")
     p.add_argument("-s", "--source", choices=list(SOURCE_LANGS), default="auto", help="原文言語 (既定: auto)")
     p.add_argument("-o", "--output", type=Path, help="出力ファイル（省略時は標準出力）")
     p.add_argument("--max-chars", type=int, default=DEFAULT_MAX_CHARS, help="1 チャンクの最大文字数")
@@ -27,7 +43,7 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
 
     try:
-        text = extract_text(args.input)
+        text = shape_text(sys.stdin.read()) if str(args.input) == "-" else extract_text(args.input)
     except (ValueError, OSError) as e:
         print(f"抽出エラー: {e}", file=sys.stderr)
         return 1
