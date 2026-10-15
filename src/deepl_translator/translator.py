@@ -79,6 +79,7 @@ class DeepLTranslator:
     def _post(self, body: dict) -> dict:
         delay = 1.0
         for attempt in range(self.max_retries + 1):
+            wait = delay
             try:
                 resp = self.session.post(self.url, json=body, timeout=self.timeout)
             except requests.RequestException as e:
@@ -90,7 +91,8 @@ class DeepLTranslator:
                 # 429: レート制限 / 5xx: 一時障害 → 指数バックオフで再試行
                 if resp.status_code not in (429, 500, 502, 503, 504) or attempt == self.max_retries:
                     raise DeepLError(_error_message(resp))
-            time.sleep(delay)
+                wait = _retry_after(resp) or delay
+            time.sleep(wait)
             delay = min(delay * 2, 30)
         raise DeepLError("再試行回数を超えました")
 
@@ -173,6 +175,15 @@ def build_context(user_context: str | None, previous_chunk: str | None, max_char
         joined = " ".join(tail)
         parts.append(joined[-max_chars:])  # 1 文が長すぎる場合の保険
     return "\n\n".join(parts) or None
+
+
+def _retry_after(resp: requests.Response, max_wait: float = 60) -> float | None:
+    """Retry-After ヘッダ（秒数）があればその値を返す（上限 max_wait 秒）。"""
+    try:
+        sec = float(resp.headers.get("Retry-After", ""))
+    except ValueError:
+        return None
+    return min(sec, max_wait) if sec > 0 else None
 
 
 def _error_message(resp: requests.Response) -> str:

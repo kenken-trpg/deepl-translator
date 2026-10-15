@@ -252,7 +252,7 @@ requires-dist = [
     { name = "python-docx", specifier = ">=1.1" },
     { name = "python-dotenv", specifier = ">=1.0" },
     { name = "requests", specifier = ">=2.31" },
-    { name = "streamlit", marker = "extra == 'web'", specifier = ">=1.35" },
+    { name = "streamlit", marker = "extra == 'web'", specifier = ">=1.39" },
 ]
 provides-extras = ["web"]
 

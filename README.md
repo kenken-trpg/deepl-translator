@@ -2,7 +2,10 @@
 
 txt / docx / pdf からテキストを抽出し、意味の切れ目でチャンク分割して DeepL API で **英語・ドイツ語 → 日本語** に翻訳します。
 
+> Extract text from txt/docx/pdf, split it at semantic boundaries, and translate English/German into Japanese with the DeepL API (CLI + Streamlit GUI).
+
 ## セットアップ
+必要なもの: Python 3.11 以上、[uv](https://docs.astral.sh/uv/)、DeepL API キー（[DeepL API の登録ページ](https://www.deepl.com/pro-api)から取得。Free プランあり）。
 ```sh
 uv sync --extra web
 cp .env.example .env   # DEEPL_AUTH_KEY を記入（環境変数で直接指定してもよい）
@@ -23,12 +26,15 @@ pbpaste | uv run deepl-shape | pbcopy        # 整形してクリップボード
 pbpaste | uv run deepl-shape --url           # DeepL Web 翻訳の URL を出力
 pbpaste | uv run deepl-translate - -s EN     # 整形して API で翻訳
 ```
+`pbpaste` / `pbcopy` は macOS のコマンドです。Linux では `xclip -o` / `xclip -selection clipboard` などに読み替えてください。
+
 Web GUI では「貼り付け整形」タブ（コピー / DeepL Web で開く / API 翻訳）。
 
 ## Web GUI
 ```sh
 uv run streamlit run app.py
 ```
+> **注意**: GUI は手元での利用を想定しています。サーバー等で外部に公開すると、アクセスした誰もがあなたの API キーで翻訳でき、文字数クォータを消費されます。
 
 ## 分割の仕組み
 1. **チャンク（既定 4000 字以下）**: 段落 > 文 > 節（`; : ,`）> 単語 の優先順で切る。
@@ -44,3 +50,6 @@ uv run streamlit run app.py
 ```sh
 uv run pytest
 ```
+
+## ライセンス
+[MIT](LICENSE)

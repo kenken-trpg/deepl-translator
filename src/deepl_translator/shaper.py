@@ -1,7 +1,8 @@
 """PDF 等からコピーしたテキストの整形（Shaper 相当）。
 
 - 行末ハイフネーションの除去: "trans-\\nlation" → "translation"
-  次の行が大文字で始まる場合（独語の複合語 "Max-\\nPlanck" 等）はハイフンを残して結合する。
+  次の行が大文字で始まる場合（独語の複合語 "Max-\\nPlanck" 等）と数字の範囲（"1990-\\n2000"）は
+  ハイフンを残して結合する。
 - 段落内の改行をスペースに置換
 - 空行は段落区切りとして残す（keep_paragraphs=False で 1 行に平坦化）
 """
@@ -28,7 +29,8 @@ def shape_text(text: str, keep_paragraphs: bool = True) -> str:
 
 def _join_hyphen(m: re.Match[str]) -> str:
     before, after = m.group(1), m.group(2)
-    if after.isupper():
+    # 大文字始まり（独語の複合語）と数字の範囲 "1990-\n2000" はハイフンを残す
+    if after.isupper() or (before.isdigit() and after.isdigit()):
         return f"{before}-{after}"
     return f"{before}{after}"
 

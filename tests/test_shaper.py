@@ -14,6 +14,10 @@ def test_keeps_hyphen_before_capital_and_inline_hyphens():
     assert shape_text(raw) == "Das Max-Planck-Institut und state-of-the-art models."
 
 
+def test_keeps_hyphen_in_number_range():
+    assert shape_text("from 1990-\n2000 and pp. 12-\n15") == "from 1990-2000 and pp. 12-15"
+
+
 def test_soft_hyphen_removed():
     assert shape_text("Über­setzung") == "Übersetzung"
 

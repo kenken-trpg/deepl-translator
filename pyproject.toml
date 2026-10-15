@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-web = ["streamlit>=1.35"]
+web = ["streamlit>=1.39"]
 
 [project.scripts]
 deepl-translate = "deepl_translator.cli:main"

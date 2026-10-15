@@ -1,6 +1,7 @@
 """Streamlit Web GUI:  uv run streamlit run app.py"""
 from __future__ import annotations
 
+import hashlib
 import io
 
 import streamlit as st
@@ -24,6 +25,8 @@ with st.sidebar:
 
 def translate_and_show(text: str, key: str, download_name: str) -> None:
     """分割プレビュー → 翻訳ボタン → 結果表示・ダウンロード。"""
+    # 入力や設定が変わったら前回の翻訳結果は表示しない
+    signature = hashlib.sha256(repr((text, source, max_chars, formality, context, auto_context, bilingual)).encode()).hexdigest()
     chunks = split_into_chunks(text, max_chars=max_chars)
     n_requests = len(chunks) if auto_context else len(build_batches(chunks))
     c1, c2, c3 = st.columns(3)
@@ -53,12 +56,13 @@ def translate_and_show(text: str, key: str, download_name: str) -> None:
             st.error(str(e))
             return
         bar.empty()
-        st.session_state[key] = result.bilingual() if bilingual else result.text
+        st.session_state[key] = (signature, result.bilingual() if bilingual else result.text)
         st.success(f"完了（課金文字数 {result.billed_characters:,}）")
 
-    if key in st.session_state:
-        out = st.session_state[key]
-        st.text_area("翻訳結果", out, height=400, key=f"{key}_out")
+    saved = st.session_state.get(key)
+    if saved and saved[0] == signature:
+        out = saved[1]
+        st.text_area("翻訳結果", out, height=400, key=f"{key}_out_{signature[:12]}")
         st.download_button("ダウンロード (.txt)", out.encode("utf-8"), file_name=download_name, mime="text/plain", key=f"{key}_dl")
 
 

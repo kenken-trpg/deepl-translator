@@ -46,3 +46,25 @@ def test_build_context_starts_at_sentence_boundary():
 
     ctx = build_context(None, "One here. Two here. Three here.", 22)
     assert ctx == "Two here. Three here."
+
+
+def test_retry_honors_retry_after(monkeypatch):
+    import requests
+
+    from deepl_translator import translator as mod
+
+    tr = DeepLTranslator(auth_key="dummy:fx")
+    sleeps = []
+    monkeypatch.setattr(mod.time, "sleep", sleeps.append)
+
+    def response(status, headers=None, body=b'{"translations": [{"text": "JA"}]}'):
+        r = requests.Response()
+        r.status_code = status
+        r.headers.update(headers or {})
+        r._content = body
+        return r
+
+    responses = [response(429, {"Retry-After": "7"}), response(503), response(200)]
+    monkeypatch.setattr(tr.session, "post", lambda *a, **k: responses.pop(0))
+    assert tr.translate_texts(["Hi"], None) == [{"text": "JA"}]
+    assert sleeps == [7.0, 2.0]  # 1 回目は Retry-After、2 回目は指数バックオフ（1→2 秒）

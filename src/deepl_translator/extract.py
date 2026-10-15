@@ -51,16 +51,18 @@ def _extract_txt(data: bytes) -> str:
 
 def _extract_docx(data: bytes) -> str:
     import docx  # python-docx
+    from docx.text.paragraph import Paragraph
 
     doc = docx.Document(io.BytesIO(data))
     blocks: list[str] = []
-    for para in doc.paragraphs:
-        t = para.text.strip()
-        if t:
-            blocks.append(t)
-    # 表のセルも段落として拾う
-    for table in doc.tables:
-        for row in table.rows:
+    # 段落と表を文書内の出現順に拾う（表は 1 行 = 1 段落）
+    for item in doc.iter_inner_content():
+        if isinstance(item, Paragraph):
+            t = item.text.strip()
+            if t:
+                blocks.append(t)
+            continue
+        for row in item.rows:
             cells = [c.text.strip() for c in row.cells if c.text.strip()]
             if cells:
                 blocks.append(" | ".join(dict.fromkeys(cells)))

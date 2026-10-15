@@ -5,3 +5,6 @@ __pycache__/
 .pytest_cache/
 output/
 CLAUDE.md
+.DS_Store
+dist/
+*.egg-info/
