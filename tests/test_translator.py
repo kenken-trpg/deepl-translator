@@ -68,3 +68,12 @@ def test_retry_honors_retry_after(monkeypatch):
     monkeypatch.setattr(tr.session, "post", lambda *a, **k: responses.pop(0))
     assert tr.translate_texts(["Hi"], None) == [{"text": "JA"}]
     assert sleeps == [7.0, 2.0]  # 1 回目は Retry-After、2 回目は指数バックオフ（1→2 秒）
+
+
+def test_user_agent_uses_package_version():
+    import tomllib
+    from pathlib import Path
+
+    expected = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())["project"]["version"]
+    tr = DeepLTranslator(auth_key="dummy:fx")
+    assert tr.session.headers["User-Agent"] == f"deepl-translator/{expected}"

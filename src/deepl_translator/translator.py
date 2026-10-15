@@ -8,6 +8,7 @@ from typing import Callable
 
 import requests
 
+from . import __version__
 from .chunker import (
     DEFAULT_MAX_CHARS,
     DEFAULT_MAX_REQUEST_BYTES,
@@ -72,7 +73,7 @@ class DeepLTranslator:
             {
                 "Authorization": f"DeepL-Auth-Key {self.auth_key}",
                 "Content-Type": "application/json",
-                "User-Agent": "deepl-translator/0.1",
+                "User-Agent": f"deepl-translator/{__version__}",
             }
         )
 
