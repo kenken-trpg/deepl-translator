@@ -3,6 +3,7 @@ name = "deepl-translator"
 version = "0.1.0"
 description = "Extract text from txt/docx/pdf, chunk at semantic boundaries, translate EN/DE -> JA via DeepL API"
 requires-python = ">=3.11"
+license = "MIT"
 dependencies = [
     "requests>=2.31",
     "pypdf>=4.0",
