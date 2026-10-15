@@ -19,7 +19,7 @@ uv run deepl-translate input.docx -s DE --bilingual -o out_ja.txt
 uv run deepl-translate input.txt --dry-run          # API を呼ばず分割結果だけ確認
 ```
 
-## 貼り付け整形（Shaper 相当）
+## 貼り付け整形
 PDF からコピーした文章の不要な改行・行末ハイフネーションを除去（大文字始まりの独語複合語 `Max-\nPlanck` はハイフンを残す）。
 ```sh
 pbpaste | uv run deepl-shape | pbcopy        # 整形してクリップボードへ
@@ -50,6 +50,9 @@ uv run streamlit run app.py
 ```sh
 uv run pytest
 ```
+
+## 謝辞
+貼り付け整形機能は、論文翻訳支援アプリ [Shaper](https://dream-exp.net/shaper/) を参考にしました（実装は独自のものです）。
 
 ## ライセンス
 [MIT](LICENSE)

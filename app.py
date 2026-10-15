@@ -66,7 +66,7 @@ def translate_and_show(text: str, key: str, download_name: str) -> None:
         st.download_button("ダウンロード (.txt)", out.encode("utf-8"), file_name=download_name, mime="text/plain", key=f"{key}_dl")
 
 
-tab_file, tab_shaper = st.tabs(["📄 ファイル翻訳", "✂️ 貼り付け整形（Shaper）"])
+tab_file, tab_shaper = st.tabs(["📄 ファイル翻訳", "✂️ 貼り付け整形"])
 
 with tab_file:
     uploaded = st.file_uploader("ファイルを選択", type=["txt", "docx", "pdf"])
