@@ -1,5 +1,7 @@
 # deepl-translator
 
+[![test](https://github.com/kenken-trpg/deepl-translator/actions/workflows/test.yml/badge.svg)](https://github.com/kenken-trpg/deepl-translator/actions/workflows/test.yml)
+
 txt / docx / pdf からテキストを抽出し、意味の切れ目でチャンク分割して DeepL API で **英語・ドイツ語 → 日本語** に翻訳します。
 
 > Extract text from txt/docx/pdf, split it at semantic boundaries, and translate English/German into Japanese with the DeepL API (CLI + Streamlit GUI).
