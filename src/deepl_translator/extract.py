@@ -73,8 +73,27 @@ def _extract_pdf(data: bytes) -> str:
     from pypdf import PdfReader
 
     reader = PdfReader(io.BytesIO(data))
-    pages = [(page.extract_text() or "") for page in reader.pages]
+    pages = [_clean_pdf_glyphs(page.extract_text() or "") for page in reader.pages]
     return "\n\n".join(_reflow_pdf_page(p) for p in pages if p.strip())
+
+
+# 抽出で化ける文字: 置換文字 U+FFFD、改行・タブ以外の制御文字、私用領域 (U+E000–U+F8FF)
+_GARBLED = "�\x00-\x08\x0b\x0c\x0e-\x1f\x7f-"
+_GARBLED_RUN = re.compile(f"[{_GARBLED}]{{2,}}")
+_GARBLED_DECIMAL = re.compile(r"(?<=\d)�(?=\d)")
+_GARBLED_ANY = re.compile(f"[{_GARBLED}]")
+
+
+def _clean_pdf_glyphs(text: str) -> str:
+    """フォントの ToUnicode 不備などで化けた文字を除去する。
+
+    - 2 文字以上の連続（目次のリーダー点線など）はスペース 1 つに
+    - 数字に挟まれた単独の U+FFFD は小数点とみなして "." に (2�0 → 2.0)
+    - 残りは削除
+    """
+    text = _GARBLED_RUN.sub(" ", text)
+    text = _GARBLED_DECIMAL.sub(".", text)
+    return _GARBLED_ANY.sub("", text)
 
 
 def _reflow_pdf_page(text: str) -> str:
